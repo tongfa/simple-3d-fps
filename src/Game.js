@@ -44,7 +44,7 @@ export default class Game {
         this.engine = new BABYLON.Engine(this.canvas, true);
 
         this.currentLevel = null;
-        this.currentLevelName = 'HomeMenuLevel';
+        this.currentLevelName = 'FirstLevel';
 
         this.levels = {
             'HomeMenuLevel': new HomeMenuLevel(),
@@ -74,10 +74,10 @@ export default class Game {
     }
 
     listenKeys() {
-        
+
         document.addEventListener('keydown', keyDown.bind(this));
         document.addEventListener('keyup', keyUp.bind(this));
-    
+
         this.keys.up = false;
         this.keys.down = false;
         this.keys.left = false;
@@ -86,13 +86,13 @@ export default class Game {
         function keyDown(e) {
             if (e.keyCode == 87 || e.keyCode == 38) {//Arrow Up
                 this.keys.up = 1;
-                
+
             }else if (e.keyCode == 83 || e.keyCode == 40) {//Arrow Down
                 this.keys.down = 1;
-                
+
             } else if (e.keyCode == 65 || e.keyCode == 37) {//Arrow Left
                 this.keys.left = 1;
-                
+
             } else if (e.keyCode == 68 || e.keyCode == 39) {//Arrow Right
                 this.keys.right = 1;
             }
@@ -136,7 +136,7 @@ export default class Game {
 
         hammertime.on('swipeleft', (ev) => {
             this.keys.left = 2;
-            
+
             setTimeout(() => {
                 this.keys.left = 0;
             }, 150);
@@ -160,7 +160,7 @@ export default class Game {
             this.resume();
         });
 
-        window.addEventListener('resize', () => { 
+        window.addEventListener('resize', () => {
             this.engine.resize();
         });
     }

@@ -1,5 +1,5 @@
 export default class Weapon {
-    
+
     constructor(level) {
 
         this.level = level;
@@ -23,22 +23,23 @@ export default class Weapon {
 
     create() {
 
-        this.mesh = this.level.assets.getAnimatedMesh('rifle');
+        this.mesh = this.level.assets.getMesh('hose');
         this.mesh.setEnabled(true);
-            
+
         this.mesh.isVisible = true;
-        
+
         // Let's use a transform node to never lose the correct mesh orientation
         // It we apply transformations directly to the mesh, It can be mirrored,
         // removinf the handedness conversion
         let transformNode = new BABYLON.TransformNode('weaponTransformNode');
-        
-        transformNode.parent = this.level.camera; 
-        transformNode.scaling = new BABYLON.Vector3(3.5, 3.5, 3.5);
-        transformNode.position = new BABYLON.Vector3(0.7,-0.45,1.1);
-        
+
+        transformNode.parent = this.level.camera;
+        transformNode.scaling = new BABYLON.Vector3(0.02, 0.02, 0.02);
+        transformNode.position = new BABYLON.Vector3(1,-1.0,3);
+        transformNode.rotate(new BABYLON.Vector3(1,0,0), Math.PI / 2)
+
         this.mesh.parent = transformNode;
-        
+
         this.controlFireRate();
 
     }
@@ -57,7 +58,7 @@ export default class Weapon {
 
         var width = this.scene.getEngine().getRenderWidth();
         var height = this.scene.getEngine().getRenderHeight();
-        
+
         // Is the player control enabled?
         if (this.level.controlEnabled) {
             var pickInfo = this.scene.pick(width/2, height/2, null, false, this.camera);
@@ -72,9 +73,9 @@ export default class Weapon {
             this.shots++;
             this.fireSound.play();
             this.level.updateStats();
-            
+
             // If we hit an enemy
-            if (pickInfo.hit && BABYLON.Tags.HasTags(pickInfo.pickedMesh) 
+            if (pickInfo.hit && BABYLON.Tags.HasTags(pickInfo.pickedMesh)
             && pickInfo.pickedMesh.matchesTagsQuery('enemy')) {
                 let mainMesh = (pickInfo.pickedMesh.parent) ? pickInfo.pickedMesh.parent : pickInfo.pickedMesh;
                 mainMesh.enemyObject.destroy();
@@ -84,7 +85,7 @@ export default class Weapon {
                     box.position = pickInfo.pickedPoint.clone();
                 }
             }
-            
+
             this.animateFire();
 
             this.canFire = false;
@@ -93,13 +94,13 @@ export default class Weapon {
 
     animateFire() {
         // Playing rifle animation from frame 0 to 10
-        this.level.assets.playMeshAnimation('rifle', 0, 10);
+        // this.level.assets.playMeshAnimation('rifle', 0, 10);
     }
 
     reload() {
         this.ammo += 10;
         this.states.EMPTY = false;
-        this.level.assets.playMeshAnimation('rifle', 11, 72);
+        // this.level.assets.playMeshAnimation('rifle', 11, 72);
         this.reloadSound.play();
         this.level.updateStats();
     }
@@ -107,7 +108,7 @@ export default class Weapon {
     controlFireRate() {
         if (!this.canFire) {
             this.currentFireRate -= GAME.engine.getDeltaTime();
-            
+
             if (this.currentFireRate <= 0) {
                 this.canFire = true;
                 this.currentFireRate = this.fireRate;
