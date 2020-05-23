@@ -52,7 +52,7 @@ export default class FirstLevel extends Level {
         hemiLight.intensity = 0.5;
 
         // Skybox
-        var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size: 1000}, this.scene);
+        var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size: 1575}, this.scene);
         var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
         skyboxMaterial.backFaceCulling = false;
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/skybox/skybox", this.scene);
@@ -71,14 +71,13 @@ export default class FirstLevel extends Level {
         this.createGround();
         this.addWeapon();
 
-
         this.createHUD();
         this.createMenu();
 
         this.setupEventListeners();
 
         this.player.startTimeCounter();
-        this.addSomething('hose')
+        // this.addSomething('hose')
     }
 
     addSomething(meshName) {
@@ -94,18 +93,18 @@ export default class FirstLevel extends Level {
         mesh.parent = transformNode;
     }
 
-    createGround() {
-        let ground = BABYLON.Mesh.CreateGround('ground',  5000,  5000, 2, this.scene);
-        ground.checkCollisions = true;
+    createGround(callback) {
+        //let ground = BABYLON.Mesh.CreateGround('ground',  5000,  5000, 2, this.scene);
+
 
         let groundMaterial = new BABYLON.StandardMaterial('groundMaterial', this.scene);
-        groundMaterial.diffuseTexture = new BABYLON.Texture('/assets/images/grass.jpg', this.scene);
-        groundMaterial.diffuseTexture.uScale = 1000;
-        groundMaterial.diffuseTexture.vScale = 1000;
-
-
+        groundMaterial.diffuseTexture = new BABYLON.Texture('/assets2/fernie-ground-map-2.png', this.scene);
+        // groundMaterial.diffuseTexture.uScale = 1000;
+        // groundMaterial.diffuseTexture.vScale = 1000;
         groundMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
 
+        let ground = BABYLON.Mesh.CreateGroundFromHeightMap("ground", "/assets2/fernie-height-map-2.png", 1600, 1600, 300, 0, 140, this.scene, false, callback);
+        ground.checkCollisions = true;
         ground.material = groundMaterial;
     }
 
@@ -165,7 +164,7 @@ export default class FirstLevel extends Level {
             'horizontalAlignment': BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
         });
 
-        this.ammoTextControl = hud.addText('Ammo: ' + this.weapon.ammo, {
+        this.ammoTextControl = hud.addText('Position: ' + this.cameraPosition, {
             'top': '10px',
             'left': '10px',
             'horizontalAlignment': BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER
@@ -220,13 +219,13 @@ export default class FirstLevel extends Level {
     }
 
     createCamera() {
-        var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 3.5, 100), this.scene);
-        camera.setTarget(new BABYLON.Vector3(0,2,0));
+        var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(-45, 50.3, -10), this.scene);
+        camera.setTarget(new BABYLON.Vector3(0,1,1));
 
         camera.attachControl(GAME.canvas, true);
 
         camera.applyGravity = true;
-        camera.ellipsoid = new BABYLON.Vector3(1, 1.7, 1);
+        camera.ellipsoid = new BABYLON.Vector3(0.1, 0.17, 0.1);
         camera.checkCollisions = true;
         camera._needMoveForGravity = true;
 
@@ -241,7 +240,7 @@ export default class FirstLevel extends Level {
 
         camera.inertia = 0.1;
         camera.angularSensibility = 800;
-        camera.speed = 17;
+        camera.speed = 5;
 
         camera.onCollide = (collidedMesh) => {
             // If the camera collides with the ammo box
@@ -251,6 +250,13 @@ export default class FirstLevel extends Level {
                 collidedMesh.arrow.dispose();
             }
         }
+
+        this.cancelCameraPoller = setInterval(() => {
+          debugger
+            this.cameraPosition = camera.position.toString()
+            this.updateStats();
+        }, 250);
+        camera.position
 
         return camera;
     }
@@ -304,8 +310,7 @@ export default class FirstLevel extends Level {
 
     updateStats() {
         this.lifeTextControl.text = 'Life: ' + this.playerLife;
-        this.ammoTextControl.text = 'Ammo: ' + this.weapon.ammo;
-        this.hitsTextControl.text = 'Hits: ' + this.player.hits;
+        this.ammoTextControl.text = 'Position: ' + this.cameraPosition
     }
 
     gameOver() {
@@ -323,6 +328,8 @@ export default class FirstLevel extends Level {
             this.ammoBox.dispose();
             this.ammoBox.arrow.dispose();
         }
+
+        this.cancelCameraPoller();
     }
 
     showMenu() {

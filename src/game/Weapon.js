@@ -34,8 +34,8 @@ export default class Weapon {
         let transformNode = new BABYLON.TransformNode('weaponTransformNode');
 
         transformNode.parent = this.level.camera;
-        transformNode.scaling = new BABYLON.Vector3(0.02, 0.02, 0.02);
-        transformNode.position = new BABYLON.Vector3(1,-1.0,3);
+        transformNode.scaling = new BABYLON.Vector3(0.002, 0.002, 0.002);
+        transformNode.position = new BABYLON.Vector3(1,-0.5,1);
         transformNode.rotate(new BABYLON.Vector3(1,0,0), Math.PI / 2)
 
         this.mesh.parent = transformNode;
