@@ -4,6 +4,11 @@ import Weapon from '../Weapon';
 import Player from '../Player';
 import Level from '../../base/Level';
 
+function round(value, precision) {
+    var multiplier = Math.pow(10, precision || 0);
+    return Math.round(value * multiplier) / multiplier;
+}
+
 export default class FirstLevel extends Level {
 
     setProperties() {
@@ -61,23 +66,28 @@ export default class FirstLevel extends Level {
         skybox.material = skyboxMaterial;
 
         this.scene.gravity = new BABYLON.Vector3(0, -9.81, 0);
-        this.scene.collisionsEnabled = true;
-
-        // Create and set the active camera
         this.camera = this.createCamera();
-        this.scene.activeCamera = this.camera;
-        this.enablePointerLock();
 
-        this.createGround();
-        this.addWeapon();
+        this.createGround(() => {
+          this.scene.collisionsEnabled = true;
+          // Create and set the active camera
+          this.camera.applyGravity = true;
+          this.camera.checkCollisions = true;
+          this.camera._needMoveForGravity = true;
+          this.scene.activeCamera = this.camera;
+          this.enablePointerLock();
 
-        this.createHUD();
-        this.createMenu();
+          this.addWeapon();
 
-        this.setupEventListeners();
+          this.createHUD();
+          this.createMenu();
 
-        this.player.startTimeCounter();
-        // this.addSomething('hose')
+          this.setupEventListeners();
+
+          this.player.startTimeCounter();
+          // this.addSomething('hose')
+        });
+
     }
 
     addSomething(meshName) {
@@ -219,15 +229,12 @@ export default class FirstLevel extends Level {
     }
 
     createCamera() {
-        var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(-45, 50.3, -10), this.scene);
-        camera.setTarget(new BABYLON.Vector3(0,1,1));
+        var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(-45, 60.3, -10), this.scene);
+        camera.setTarget(new BABYLON.Vector3(-80,75,30));
 
         camera.attachControl(GAME.canvas, true);
 
-        camera.applyGravity = true;
         camera.ellipsoid = new BABYLON.Vector3(0.1, 0.17, 0.1);
-        camera.checkCollisions = true;
-        camera._needMoveForGravity = true;
 
         // Reducing the minimum visible FOV to show the Weapon correctly
         camera.minZ = 0;
@@ -250,13 +257,6 @@ export default class FirstLevel extends Level {
                 collidedMesh.arrow.dispose();
             }
         }
-
-        this.cancelCameraPoller = setInterval(() => {
-          debugger
-            this.cameraPosition = camera.position.toString()
-            this.updateStats();
-        }, 250);
-        camera.position
 
         return camera;
     }
@@ -309,8 +309,12 @@ export default class FirstLevel extends Level {
     }
 
     updateStats() {
+      if (this.lifeTextControl) {
         this.lifeTextControl.text = 'Life: ' + this.playerLife;
-        this.ammoTextControl.text = 'Position: ' + this.cameraPosition
+      }
+      if (this.ammoTextControl) {
+        this.ammoTextControl.text = 'Position: ' + this.cameraPosition;
+      }
     }
 
     gameOver() {
@@ -329,7 +333,7 @@ export default class FirstLevel extends Level {
             this.ammoBox.arrow.dispose();
         }
 
-        this.cancelCameraPoller();
+        clearInterval(this.cancelCameraPollerId)
     }
 
     showMenu() {
@@ -365,14 +369,12 @@ export default class FirstLevel extends Level {
     }
 
     beforeRender() {
-        if(!GAME.isPaused()) {
-            this.weapon.controlFireRate();
-            this.enemies.forEach(enemy => enemy.move());
-
+        if(!GAME.isPaused() && this.camera) {
             if(this.camera.position.y < -20) {
                 this.gameOver();
             }
+            this.cameraPosition = `x:${round(this.camera.position.x, 1)} y:${round(this.camera.position.y, 1)} z:${round(this.camera.position.z, 1)}`;
+            this.updateStats();
         }
     }
-
 }
