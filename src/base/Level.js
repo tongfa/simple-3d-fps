@@ -3,7 +3,7 @@ import AssetsDatabase from './AssetsDatabase';
 export default class Level {
 
     constructor() {
-        
+
         /**
          * We can use this object to store materials that can be reused along the game
          */
@@ -15,8 +15,12 @@ export default class Level {
 
     }
 
+    setupAssets() {
+      return Promise.resolve();
+    }
+
     start() {
-        
+
         if(this.setProperties) {
             this.setProperties();
         } else {
@@ -27,6 +31,7 @@ export default class Level {
     }
 
     createScene() {
+        console.log('createScene')
         // Create the scene space
         this.scene = new BABYLON.Scene(GAME.engine);
 
@@ -37,6 +42,7 @@ export default class Level {
 
             if(this.buildScene) {
                 this.buildScene();
+                console.log('building scene')
             } else {
                 GAME.log.debugWarning('You can add the buildScene method to your level to define your scene');
             }
@@ -55,14 +61,10 @@ export default class Level {
 
         });
 
-        if(this.setupAssets) {
-            this.setupAssets();
-        }
-
-        // Load the assets
+        const assetsPromise = this.setupAssets();
         this.assets.load();
-
-        return this.scene;
+        console.log('loading')
+        return assetsPromise;
     }
 
     exit() {
@@ -83,14 +85,14 @@ export default class Level {
      * Adds a collider to the level scene. It will fire the options.onCollide callback
      * when the collider intersects options.collisionMesh. It can be used to fire actions when
      * player enters an area for example.
-     * @param {*} name 
-     * @param {*} options 
+     * @param {*} name
+     * @param {*} options
      */
     addCollider(name, options) {
-        
+
         let collider = BABYLON.MeshBuilder.CreateBox(name, {
-            width: options.width || 1, 
-            height: options.height || 1, 
+            width: options.width || 1,
+            height: options.height || 1,
             depth: options.depth || 1
         }, this.scene);
 
@@ -120,13 +122,13 @@ export default class Level {
                     trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger,
                     parameter: options.collisionMesh
                 },
-                () => { 
+                () => {
 
                     // Runs onCollide callback if exists
                     if(options.onCollide) {
                         options.onCollide();
                     }
-                    
+
                     // If true, will dispose the collider after timeToDispose
                     if(options.disposeAfterCollision) {
                         setTimeout(() => {
@@ -194,7 +196,7 @@ export default class Level {
 
         this.scene.actionManager.registerAction(interpolateAction);
         interpolateAction.execute();
-        
+
     }
 
     /**
@@ -202,7 +204,7 @@ export default class Level {
      */
     enablePointerLock() {
         let canvas = GAME.canvas;
-        
+
         if(!this.camera) {
             console.error('You need to add a camera to the level to enable pointer lock');
         }

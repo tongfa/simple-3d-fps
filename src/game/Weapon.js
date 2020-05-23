@@ -1,3 +1,5 @@
+import * as BABYLON from '@babylonjs/core/Legacy/legacy';
+
 export default class Weapon {
 
     constructor(level) {

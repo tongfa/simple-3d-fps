@@ -7,6 +7,8 @@ import FirstLevel from './game/levels/FirstLevel.js';
 import CreditsLevel from './game/levels/CreditsLevel.js';
 import HomeMenuLevel from './game/levels/HomeMenuLevel.js';
 
+import * as BABYLON from '@babylonjs/core/Legacy/legacy';
+
 export default class Game {
 
     constructor(options = {}) {

@@ -1,5 +1,7 @@
+import "@babylonjs/loaders/OBJ";
+
 export default class AssetsDatabase {
-    
+
     constructor(scene, finishCallback) {
 
         this.scene = scene;
@@ -18,31 +20,35 @@ export default class AssetsDatabase {
 
     /**
      * Adds a sound to be loaded
-     * @param {*} name 
-     * @param {*} file 
-     * @param {*} options 
+     * @param {*} name
+     * @param {*} file
+     * @param {*} options
      */
     addSound(name, file, options) {
+      return new Promise(resolve => {
         let fileTask = this.manager.addBinaryFileTask(name + '__SoundTask', file);
 
         fileTask.onSuccess = (task) => {
             this.sounds[name] = new BABYLON.Sound(name, task.data, this.scene, null, options);
-            
+
             // Execute a success callback
             if(options.onSuccess) {
                 options.onSuccess(this.sounds[name]);
             }
+            resolve(this.sounds[name]);
         }
-
-        return this.sounds[name];
+        fileTask.onError = (task, message) => {
+          console.error(message, task);
+        }
+      });
     }
 
     /**
      * Adds a music (sound with some predefined parametes that can be overwriten)
      * By default, musics are automatically played in loop
-     * @param {*} name 
-     * @param {*} file 
-     * @param {*} options 
+     * @param {*} name
+     * @param {*} file
+     * @param {*} options
      */
     addMusic(name, file, options = {}) {
 
@@ -59,34 +65,40 @@ export default class AssetsDatabase {
     }
 
     addMesh(name, file, options = {}, mergeMeshes = false) {
+      return new Promise(resolve => {
+
         let fileTask = this.manager.addMeshTask(name + '__MeshTask', '', file);
 
         fileTask.onSuccess = (task) => {
-            
+
             let mesh = null;
-            
+
             try {
                 if(mergeMeshes) {
-                    mesh = BABYLON.Mesh.MergeMeshes(task.loadedMeshes);   
+                    mesh = BABYLON.Mesh.MergeMeshes(task.loadedMeshes);
                 } else {
                     mesh = task.loadedMeshes[0];
                 }
 
                 mesh.setEnabled(false);
-    
+
                 this.meshes[name] = mesh;
-                
-                // Execute a success callback
+
+                // Execute a success callback  TODO - eliminate this callback
                 if(options.onSuccess) {
                     options.onSuccess(this.meshes[name]);
                 }
+                console.log('resolving mesh', name)
+                resolve(this.meshes[name])
             } catch (error) {
                 console.error(error)
             }
 
         }
-
-        return this.meshes[name];
+        fileTask.onError = (task, message) => {
+          console.error(message, task);
+        }
+      })
     }
 
     addAnimatedMesh(name, file, options = {}) {
@@ -96,9 +108,9 @@ export default class AssetsDatabase {
             try {
                 let mesh = task.loadedMeshes[0];
                 mesh.setEnabled(false);
-    
+
                 this.animatedMeshes[name] = this.buildAnimatedMeshData(mesh, task, options);
-                
+
                 // Execute a success callback
                 if(options.onSuccess) {
                     options.onSuccess(this.animatedMeshes[name]);
@@ -153,7 +165,7 @@ export default class AssetsDatabase {
             return;
         }
 
-        return this.meshes[name];     
+        return this.meshes[name];
     }
 
     getAnimatedMesh(name) {
@@ -162,7 +174,7 @@ export default class AssetsDatabase {
             return;
         }
 
-        return this.animatedMeshes[name];     
+        return this.animatedMeshes[name];
     }
 
     getSound(name) {
@@ -170,7 +182,7 @@ export default class AssetsDatabase {
     }
 
     load() {
-        this.manager.load();
+        return this.manager.load();
     }
 
 }

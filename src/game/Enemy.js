@@ -1,3 +1,5 @@
+import * as BABYLON from '@babylonjs/core/Legacy/legacy';
+
 export default class Enemy {
 
     constructor(level) {
@@ -7,7 +9,7 @@ export default class Enemy {
 
         this.maxDistanceFromCenter = level.enemyDistanceFromCenter;
         this.defaultAltitude = 2.5;
-        this.speed = 0.4;        
+        this.speed = 0.4;
 
         this.attackSound = this.level.assets.getSound('monsterAttack');
 
@@ -20,11 +22,11 @@ export default class Enemy {
     }
 
     create() {
-        
+
         this.mesh = this.level.assets.getMesh('enemy').clone();
         this.mesh.enemyObject = this;
         this.mesh.checkCollisions = true;
-        
+
         BABYLON.Tags.AddTagsTo(this.mesh, 'enemy');
 
         this.mesh.position.x = Math.floor((Math.random() * 100)) - 50;
@@ -32,7 +34,7 @@ export default class Enemy {
         this.mesh.position.y = this.defaultAltitude;
 
         this.mesh.scaling = new BABYLON.Vector3(0.25, 0.25, 0.25);
-        
+
         this.generateRandomPosition();
 
         return this;
@@ -78,17 +80,17 @@ export default class Enemy {
     /**
      * Let's use a simple logic to check if the user was damaged by the enemy
      * considering the distance from player and the enemy attack mode
-     * @param {*} distanceFromPlayer 
+     * @param {*} distanceFromPlayer
      */
     checkAttackedThePlayer(distanceFromPlayer) {
         if(!this.states.ATTACKING) return;
 
         if(distanceFromPlayer <= 3.5) {
-            
+
             if(!this.states.CLOSE_TO_PLAYER) {
                 this.level.playerWasAttacked();
             }
-            
+
             this.states.CLOSE_TO_PLAYER = true;
         } else {
             this.states.CLOSE_TO_PLAYER = false;
@@ -96,8 +98,8 @@ export default class Enemy {
     }
 
     gotToRandomDirection() {
-        GAME.helper.moveObjectTo(this.mesh, this.randPosition, this.speed);        
-        
+        GAME.helper.moveObjectTo(this.mesh, this.randPosition, this.speed);
+
         // If is close to the destination, generates a new position
         if(this.randPosition.subtract(this.mesh.position).length() <= 1) {
             this.generateRandomPosition();
@@ -118,13 +120,13 @@ export default class Enemy {
         this.states.DESTROYED = true;
         // this.dieSound.play();
         this.level.interpolate(this.mesh.position, 'y', 0.5, 100 * this.mesh.position.y);
-        
+
         this.remove();
     }
 
     remove() {
         if(!this.mesh) return;
-        
+
         setTimeout(() => {
             this.mesh.dispose();
             this.mesh = null;

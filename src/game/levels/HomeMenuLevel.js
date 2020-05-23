@@ -1,5 +1,6 @@
 import UI from '../../base/UI';
 import Level from '../../base/Level';
+import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
 export default class HomeMenuLevel extends Level {
 
@@ -13,15 +14,15 @@ export default class HomeMenuLevel extends Level {
 
         // Make this scene transparent to see the document background
         this.scene.clearColor = new BABYLON.Color4(0,0,0,0);
- 
+
         var menu = new UI('homeMenuUI');
-        
+
         menu.addButton('playButton', 'Play Game', {
             'background': 'transparent',
             'color': 'white',
             'onclick': () => GAME.goToLevel('FirstLevel')
         });
-        
+
         menu.addButton('creditsButton', 'Credits', {
             'top': '70px',
             'background': 'transparent',

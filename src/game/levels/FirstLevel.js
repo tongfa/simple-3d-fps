@@ -1,3 +1,6 @@
+import * as BABYLON from '@babylonjs/core/Legacy/legacy';
+import * as BABYLONGUI from '@babylonjs/gui/legacy/legacy';
+
 import Enemy from '../Enemy';
 import UI from '../../base/UI';
 import Weapon from '../Weapon';
@@ -32,17 +35,16 @@ export default class FirstLevel extends Level {
     }
 
     setupAssets() {
-
-        this.assets.addMesh('hose', '/assets2/hydrant_low.obj');
-        this.assets.addMesh('test', '/assets2/freecadtest.obj');
-
-        this.assets.addMusic('music', '/assets/musics/music.mp3', {volume: 0.1});
-        this.assets.addSound('shotgun', '/assets/sounds/shotgun.wav', { volume: 0.4 });
-        this.assets.addSound('reload', '/assets/sounds/reload.mp3', { volume: 0.4 });
-        this.assets.addSound('empty', '/assets/sounds/empty.wav', { volume: 0.4 });
-        this.assets.addSound('monsterAttack', '/assets/sounds/monster_attack.wav', { volume: 0.3 });
-        this.assets.addSound('playerDamaged', '/assets/sounds/damage.wav', { volume: 0.3 });
-
+      return Promise.all([
+        this.assets.addMesh('hose', '/assets2/hydrant_low.obj'),
+        // this.assets.addMesh('test', '/assets2/freecadtest.obj'),
+        this.assets.addMusic('music', '/assets/musics/music.mp3', {volume: 0.1}),
+        this.assets.addSound('shotgun', '/assets/sounds/shotgun.wav', { volume: 0.4 }),
+        this.assets.addSound('reload', '/assets/sounds/reload.mp3', { volume: 0.4 }),
+        this.assets.addSound('empty', '/assets/sounds/empty.wav', { volume: 0.4 }),
+        this.assets.addSound('monsterAttack', '/assets/sounds/monster_attack.wav', { volume: 0.3 }),
+        this.assets.addSound('playerDamaged', '/assets/sounds/damage.wav', { volume: 0.3 }),
+      ]);
     }
 
     buildScene() {
@@ -66,9 +68,10 @@ export default class FirstLevel extends Level {
         skybox.material = skyboxMaterial;
 
         this.scene.gravity = new BABYLON.Vector3(0, -9.81, 0);
-        this.camera = this.createCamera();
-
-        this.createGround(() => {
+        Promise.all([
+          this.createCamera(),
+          this.createGround()
+        ]).then(() => {
           this.scene.collisionsEnabled = true;
           // Create and set the active camera
           this.camera.applyGravity = true;
@@ -86,8 +89,7 @@ export default class FirstLevel extends Level {
 
           this.player.startTimeCounter();
           // this.addSomething('hose')
-        });
-
+        })
     }
 
     addSomething(meshName) {
@@ -103,7 +105,8 @@ export default class FirstLevel extends Level {
         mesh.parent = transformNode;
     }
 
-    createGround(callback) {
+    createGround() {
+      return new Promise((resolve) => {
         //let ground = BABYLON.Mesh.CreateGround('ground',  5000,  5000, 2, this.scene);
 
 
@@ -113,9 +116,10 @@ export default class FirstLevel extends Level {
         // groundMaterial.diffuseTexture.vScale = 1000;
         groundMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
 
-        let ground = BABYLON.Mesh.CreateGroundFromHeightMap("ground", "/assets2/fernie-height-map-2.png", 1600, 1600, 300, 0, 140, this.scene, false, callback);
+        let ground = BABYLON.Mesh.CreateGroundFromHeightMap("ground", "/assets2/fernie-height-map-2.png", 1600, 1600, 300, 0, 140, this.scene, false, resolve);
         ground.checkCollisions = true;
         ground.material = groundMaterial;
+      })
     }
 
     addWeapon() {
@@ -171,19 +175,19 @@ export default class FirstLevel extends Level {
         this.lifeTextControl = hud.addText('Life: ' + this.playerLife, {
             'top': '10px',
             'left': '10px',
-            'horizontalAlignment': BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
+            'horizontalAlignment': BABYLONGUI.Control.HORIZONTAL_ALIGNMENT_LEFT
         });
 
         this.ammoTextControl = hud.addText('Position: ' + this.cameraPosition, {
             'top': '10px',
             'left': '10px',
-            'horizontalAlignment': BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER
+            'horizontalAlignment': BABYLONGUI.Control.HORIZONTAL_ALIGNMENT_CENTER
         });
 
         this.hitsTextControl = hud.addText('Hits: ' + this.player.hits, {
             'top': '10px',
             'left': '-10px',
-            'horizontalAlignment': BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT
+            'horizontalAlignment': BABYLONGUI.Control.HORIZONTAL_ALIGNMENT_RIGHT
         });
     }
 
@@ -194,26 +198,26 @@ export default class FirstLevel extends Level {
             'top': '-200px',
             'outlineWidth': '2px',
             'fontSize': '40px',
-            'verticalAlignment': BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER
+            'verticalAlignment': BABYLONGUI.Control.VERTICAL_ALIGNMENT_CENTER
         });
 
         this.currentRecordTextControl = this.menu.addText('Current Record: 0', {
             'top': '-150px',
-            'verticalAlignment': BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER
+            'verticalAlignment': BABYLONGUI.Control.VERTICAL_ALIGNMENT_CENTER
         });
 
         this.hasMadeRecordTextControl = this.menu.addText('You got a new Points Record!', {
             'top': '-100px',
             'color': GAME.options.recordTextColor,
             'fontSize': '20px',
-            'verticalAlignment': BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER
+            'verticalAlignment': BABYLONGUI.Control.VERTICAL_ALIGNMENT_CENTER
         });
 
         this.gameOverTextControl = this.menu.addText('GAME OVER', {
             'top': '-60px',
             'color': GAME.options.recordTextColor,
             'fontSize': '25px',
-            'verticalAlignment': BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER
+            'verticalAlignment': BABYLONGUI.Control.VERTICAL_ALIGNMENT_CENTER
         });
 
         this.menu.addButton('replayButton', 'Replay Game', {
@@ -229,6 +233,7 @@ export default class FirstLevel extends Level {
     }
 
     createCamera() {
+      return new Promise((resolve) => {
         var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(-45, 60.3, -10), this.scene);
         camera.setTarget(new BABYLON.Vector3(-80,75,30));
 
@@ -258,7 +263,9 @@ export default class FirstLevel extends Level {
             }
         }
 
-        return camera;
+        this.camera = camera;
+        resolve();
+      })
     }
 
     playerWasAttacked() {
