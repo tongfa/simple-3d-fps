@@ -35,13 +35,20 @@ export default class Weapon {
 
         transformNode.parent = this.level.camera;
         transformNode.scaling = new BABYLON.Vector3(0.002, 0.002, 0.002);
-        transformNode.position = new BABYLON.Vector3(1,-0.5,1);
+        transformNode.position = new BABYLON.Vector3(0.10,-0.10,0.15);
         transformNode.rotate(new BABYLON.Vector3(1,0,0), Math.PI / 2)
 
         this.mesh.parent = transformNode;
 
-        this.controlFireRate();
+        var myMaterial = new BABYLON.StandardMaterial("myMaterial", this.scene);
 
+        myMaterial.diffuseColor = new BABYLON.Color3(0.6, 0.6, 0.0);
+        myMaterial.specularColor = new BABYLON.Color3(1.0, 1.0, 1.0);
+        myMaterial.emissiveColor = new BABYLON.Color3(0.5, 0.4, 0.0);
+
+        this.mesh.material = myMaterial;
+
+        this.controlFireRate();
     }
 
     fire() {
