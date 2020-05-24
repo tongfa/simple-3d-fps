@@ -1,5 +1,6 @@
-import * as BABYLON from '@babylonjs/core/Legacy/legacy';
-import * as BABYLONGUI from '@babylonjs/gui/legacy/legacy';
+import { Color3, UniversalCamera, Vector3, Mesh } from '@babylonjs/core'
+import { CustomMaterial } from '@babylonjs/materials';
+import { Control } from '@babylonjs/gui';
 
 import Enemy from '../Enemy';
 import UI from '../../base/UI';
@@ -49,7 +50,7 @@ export default class FirstLevel extends Level {
 
     buildScene() {
 
-        this.scene.clearColor = new BABYLON.Color3.FromHexString('#777');
+        this.scene.clearColor = new Color3.FromHexString('#777');
 
         // Adding lights
         let dirLight = new BABYLON.DirectionalLight("DirectionalLight", new BABYLON.Vector3(0, -1, 0), this.scene);
@@ -110,13 +111,36 @@ export default class FirstLevel extends Level {
         //let ground = BABYLON.Mesh.CreateGround('ground',  5000,  5000, 2, this.scene);
 
 
-        let groundMaterial = new BABYLON.StandardMaterial('groundMaterial', this.scene);
+        let groundMaterial = new CustomMaterial('groundMaterial', this.scene);
         groundMaterial.diffuseTexture = new BABYLON.Texture('/assets2/fernie-ground-map-2.png', this.scene);
         // groundMaterial.diffuseTexture.uScale = 1000;
         // groundMaterial.diffuseTexture.vScale = 1000;
         groundMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
 
-        let ground = BABYLON.Mesh.CreateGroundFromHeightMap("ground", "/assets2/fernie-height-map-2.png", 1600, 1600, 300, 0, 140, this.scene, false, resolve);
+        groundMaterial.Fragment_Before_FragColor(`
+        // color = mix(color, vec4(0.0,0.,1.,1.),0.3);
+        // color = mix(color, vec4(0.4,0.,0.4,1.),0.3);
+
+        vec3 pos = vPositionW*1.5;
+        float subSliceSize = 0.2;
+        float sliceSize = 0.05;
+        float sliceStep = 10.;
+
+        float gridParameter = min(1. ,max(0.,min(subSliceSize,abs( sin(pos.x))))/subSliceSize) ;
+        gridParameter = min(gridParameter ,max(0.,min(subSliceSize,abs( sin(pos.z ))))/subSliceSize) ;
+        gridParameter = min(gridParameter ,max(0.,min(subSliceSize,abs( sin(pos.y+1.5))))/subSliceSize) ;
+
+        gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.x/sliceStep))))/sliceSize) ;
+        gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.z/sliceStep))))/sliceSize) ;
+        gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.y/sliceStep+1.5/sliceStep))))/sliceSize) ;
+
+
+          color = mix(color, vec4(0.,0.,0.,1.),1.-gridParameter);
+
+        `);
+
+
+        let ground = Mesh.CreateGroundFromHeightMap("ground", "/assets2/fernie-height-map-2.png", 6400, 6400, 300, 0, 140, this.scene, false, resolve);
         ground.checkCollisions = true;
         ground.material = groundMaterial;
       })
@@ -175,19 +199,19 @@ export default class FirstLevel extends Level {
         this.lifeTextControl = hud.addText('Life: ' + this.playerLife, {
             'top': '10px',
             'left': '10px',
-            'horizontalAlignment': BABYLONGUI.Control.HORIZONTAL_ALIGNMENT_LEFT
+            'horizontalAlignment': Control.HORIZONTAL_ALIGNMENT_LEFT
         });
 
         this.ammoTextControl = hud.addText('Position: ' + this.cameraPosition, {
             'top': '10px',
             'left': '10px',
-            'horizontalAlignment': BABYLONGUI.Control.HORIZONTAL_ALIGNMENT_CENTER
+            'horizontalAlignment': Control.HORIZONTAL_ALIGNMENT_CENTER
         });
 
         this.hitsTextControl = hud.addText('Hits: ' + this.player.hits, {
             'top': '10px',
             'left': '-10px',
-            'horizontalAlignment': BABYLONGUI.Control.HORIZONTAL_ALIGNMENT_RIGHT
+            'horizontalAlignment': Control.HORIZONTAL_ALIGNMENT_RIGHT
         });
     }
 
@@ -198,26 +222,26 @@ export default class FirstLevel extends Level {
             'top': '-200px',
             'outlineWidth': '2px',
             'fontSize': '40px',
-            'verticalAlignment': BABYLONGUI.Control.VERTICAL_ALIGNMENT_CENTER
+            'verticalAlignment': Control.VERTICAL_ALIGNMENT_CENTER
         });
 
         this.currentRecordTextControl = this.menu.addText('Current Record: 0', {
             'top': '-150px',
-            'verticalAlignment': BABYLONGUI.Control.VERTICAL_ALIGNMENT_CENTER
+            'verticalAlignment': Control.VERTICAL_ALIGNMENT_CENTER
         });
 
         this.hasMadeRecordTextControl = this.menu.addText('You got a new Points Record!', {
             'top': '-100px',
             'color': GAME.options.recordTextColor,
             'fontSize': '20px',
-            'verticalAlignment': BABYLONGUI.Control.VERTICAL_ALIGNMENT_CENTER
+            'verticalAlignment': Control.VERTICAL_ALIGNMENT_CENTER
         });
 
         this.gameOverTextControl = this.menu.addText('GAME OVER', {
             'top': '-60px',
             'color': GAME.options.recordTextColor,
             'fontSize': '25px',
-            'verticalAlignment': BABYLONGUI.Control.VERTICAL_ALIGNMENT_CENTER
+            'verticalAlignment': Control.VERTICAL_ALIGNMENT_CENTER
         });
 
         this.menu.addButton('replayButton', 'Replay Game', {
@@ -234,12 +258,12 @@ export default class FirstLevel extends Level {
 
     createCamera() {
       return new Promise((resolve) => {
-        var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(-45, 60.3, -10), this.scene);
-        camera.setTarget(new BABYLON.Vector3(-80,75,30));
+        var camera = new UniversalCamera("UniversalCamera", new Vector3(-45, 60.3, -10), this.scene);
+        camera.setTarget(new Vector3(-80,75,30));
 
         camera.attachControl(GAME.canvas, true);
 
-        camera.ellipsoid = new BABYLON.Vector3(0.1, 0.17, 0.1);
+        camera.ellipsoid = new Vector3(0.1, 0.17, 0.1);
 
         // Reducing the minimum visible FOV to show the Weapon correctly
         camera.minZ = 0;
@@ -309,8 +333,8 @@ export default class FirstLevel extends Level {
         this.ammoBox.checkCollisions = true;
 
         // Let's add a green arrow to show where is the ammo box
-        var arrowSpriteManager = new BABYLON.SpriteManager('arrowSpriteManager','assets/images/arrow.png', 1, 256, this.scene);
-        this.ammoBox.arrow = new BABYLON.Sprite('arrow', arrowSpriteManager);
+        var arrowSpriteManager = new SpriteManager('arrowSpriteManager','assets/images/arrow.png', 1, 256, this.scene);
+        this.ammoBox.arrow = new Sprite('arrow', arrowSpriteManager);
         this.ammoBox.arrow.position.y = 5;
         this.ammoBox.arrow.size = 4;
     }
@@ -368,7 +392,7 @@ export default class FirstLevel extends Level {
         GAME.resume();
         this.menu.hide();
 
-        this.camera.position = new BABYLON.Vector3(0, 3.5, 100);
+        this.camera.position = new Vector3(0, 3.5, 100);
         this.weapon.reload();
         this.addEnemies();
 

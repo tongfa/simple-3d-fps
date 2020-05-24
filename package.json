@@ -29,6 +29,7 @@
   ],
   "dependencies": {
     "@babylonjs/loaders": "^4.1.0",
+    "@babylonjs/materials": "^4.1.0",
     "babylonjs": "^4.1.0",
     "cross-env": "^5.2.0",
     "laravel-mix": "^4.0.13",
