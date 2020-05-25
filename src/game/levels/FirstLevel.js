@@ -122,27 +122,30 @@ export default class FirstLevel extends Level {
           // color = mix(color, vec4(0.4,0.,0.4,1.),0.3);
 
           vec3 pos = vPositionW*1.5;
-          float subSliceSize = 0.2;
-          float sliceSize = 0.05;
-          float sliceStep = 10.;
 
-          // North to South lines (X)
-          float gridParameter = min(1. ,max(0.,min(subSliceSize,abs( sin(pos.x))))/subSliceSize) ;
-          // East to West lines (Z)
-          gridParameter = min(gridParameter ,max(0.,min(subSliceSize,abs( sin(pos.z ))))/subSliceSize) ;
-          // elevation lines (Y)
-          // gridParameter = min(gridParameter ,max(0.,min(subSliceSize,abs( sin(pos.y+1.5))))/subSliceSize) ;
+          if (pos.x > -100. && pos.x < 100. && pos.z > -100. && pos.z < 100.) {
+            float subSliceSize = 0.2;
+            float sliceSize = 0.05;
+            float sliceStep = 10.;
 
-          // thicker X lines
-          gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.x/sliceStep))))/sliceSize) ;
-          // thicker Z lines
-          gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.z/sliceStep))))/sliceSize) ;
-          // thicker Y lines
-          // gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.y/sliceStep+1.5/sliceStep))))/sliceSize) ;
+            // North to South lines (X)
+            float gridParameter = min(1. ,max(0.,min(subSliceSize,abs( sin(pos.x))))/subSliceSize) ;
+            // East to West lines (Z)
+            gridParameter = min(gridParameter ,max(0.,min(subSliceSize,abs( sin(pos.z ))))/subSliceSize) ;
+            // elevation lines (Y)
+            // gridParameter = min(gridParameter ,max(0.,min(subSliceSize,abs( sin(pos.y+1.5))))/subSliceSize) ;
+
+            // thicker X lines
+            gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.x/sliceStep))))/sliceSize) ;
+            // thicker Z lines
+            gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.z/sliceStep))))/sliceSize) ;
+            // thicker Y lines
+            // gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.y/sliceStep+1.5/sliceStep))))/sliceSize) ;
 
 
-          color = mix(color, vec4(0.,0.,0.,1.),1.-gridParameter);
+            color = mix(color, vec4(0.,0.,0.,1.),1.-gridParameter);
 
+          }
         `);
 
 
