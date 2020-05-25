@@ -39,6 +39,8 @@
     "@babylonjs/core": "^4.1.0",
     "@babylonjs/gui": "^4.1.0",
     "html-webpack-plugin": "^4.3.0",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.3",
     "vue-template-compiler": "^2.5.21"
   }
 }
