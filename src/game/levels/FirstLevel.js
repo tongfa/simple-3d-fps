@@ -149,7 +149,7 @@ export default class FirstLevel extends Level {
         `);
 
 
-        let ground = Mesh.CreateGroundFromHeightMap("ground", "/assets2/fernie-height-map-2.png", 6400, 6400, 300, 0, 500, this.scene, false, resolve);
+        let ground = Mesh.CreateGroundFromHeightMap("ground", "/assets2/fernie-height-map-2.png", 6400, 6400, 400, 0, 500, this.scene, false, resolve);
         ground.checkCollisions = true;
         ground.material = groundMaterial;
       })
@@ -194,6 +194,22 @@ export default class FirstLevel extends Level {
             if(this.weapon) {
                 this.weapon.fire();
             }
+        }, false);
+        const positions = [];
+        let powerSpeed = false;
+        window.addEventListener('keypress', (e) => {
+          if (e.keyCode === 32) {
+            positions.push(this.cameraPosition)
+            console.log(positions)
+          }
+          if (e.keyCode === 'u'.charCodeAt(0)) {
+            positions.pop();
+            console.log(positions)
+          }
+          if (e.keyCode === 'p'.charCodeAt(0)) {
+            powerSpeed = !powerSpeed;
+            this.camera.speed = powerSpeed ? 100 : 10;
+          }
         }, false);
     }
 
@@ -285,7 +301,7 @@ export default class FirstLevel extends Level {
 
         camera.inertia = 0.1;
         camera.angularSensibility = 800;
-        camera.speed = 25;
+        camera.speed = 10;
 
         camera.onCollide = (collidedMesh) => {
             // If the camera collides with the ammo box
