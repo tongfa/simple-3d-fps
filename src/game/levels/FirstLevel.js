@@ -60,7 +60,7 @@ export default class FirstLevel extends Level {
         hemiLight.intensity = 0.5;
 
         // Skybox
-        var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size: 1575}, this.scene);
+        var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size: 6375}, this.scene);
         var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
         skyboxMaterial.backFaceCulling = false;
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/skybox/skybox", this.scene);
@@ -118,21 +118,27 @@ export default class FirstLevel extends Level {
         groundMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
 
         groundMaterial.Fragment_Before_FragColor(`
-        // color = mix(color, vec4(0.0,0.,1.,1.),0.3);
-        // color = mix(color, vec4(0.4,0.,0.4,1.),0.3);
+          // color = mix(color, vec4(0.0,0.,1.,1.),0.3);
+          // color = mix(color, vec4(0.4,0.,0.4,1.),0.3);
 
-        vec3 pos = vPositionW*1.5;
-        float subSliceSize = 0.2;
-        float sliceSize = 0.05;
-        float sliceStep = 10.;
+          vec3 pos = vPositionW*1.5;
+          float subSliceSize = 0.2;
+          float sliceSize = 0.05;
+          float sliceStep = 10.;
 
-        float gridParameter = min(1. ,max(0.,min(subSliceSize,abs( sin(pos.x))))/subSliceSize) ;
-        gridParameter = min(gridParameter ,max(0.,min(subSliceSize,abs( sin(pos.z ))))/subSliceSize) ;
-        gridParameter = min(gridParameter ,max(0.,min(subSliceSize,abs( sin(pos.y+1.5))))/subSliceSize) ;
+          // North to South lines (X)
+          float gridParameter = min(1. ,max(0.,min(subSliceSize,abs( sin(pos.x))))/subSliceSize) ;
+          // East to West lines (Z)
+          gridParameter = min(gridParameter ,max(0.,min(subSliceSize,abs( sin(pos.z ))))/subSliceSize) ;
+          // elevation lines (Y)
+          // gridParameter = min(gridParameter ,max(0.,min(subSliceSize,abs( sin(pos.y+1.5))))/subSliceSize) ;
 
-        gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.x/sliceStep))))/sliceSize) ;
-        gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.z/sliceStep))))/sliceSize) ;
-        gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.y/sliceStep+1.5/sliceStep))))/sliceSize) ;
+          // thicker X lines
+          gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.x/sliceStep))))/sliceSize) ;
+          // thicker Z lines
+          gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.z/sliceStep))))/sliceSize) ;
+          // thicker Y lines
+          // gridParameter = min(gridParameter ,max(0.,min(sliceSize,abs( sin(pos.y/sliceStep+1.5/sliceStep))))/sliceSize) ;
 
 
           color = mix(color, vec4(0.,0.,0.,1.),1.-gridParameter);
@@ -140,7 +146,7 @@ export default class FirstLevel extends Level {
         `);
 
 
-        let ground = Mesh.CreateGroundFromHeightMap("ground", "/assets2/fernie-height-map-2.png", 6400, 6400, 300, 0, 140, this.scene, false, resolve);
+        let ground = Mesh.CreateGroundFromHeightMap("ground", "/assets2/fernie-height-map-2.png", 6400, 6400, 300, 0, 500, this.scene, false, resolve);
         ground.checkCollisions = true;
         ground.material = groundMaterial;
       })
@@ -258,12 +264,12 @@ export default class FirstLevel extends Level {
 
     createCamera() {
       return new Promise((resolve) => {
-        var camera = new UniversalCamera("UniversalCamera", new Vector3(-45, 60.3, -10), this.scene);
+        var camera = new UniversalCamera("UniversalCamera", new Vector3(-45, 160.3, -10), this.scene);
         camera.setTarget(new Vector3(-80,75,30));
 
         camera.attachControl(GAME.canvas, true);
 
-        camera.ellipsoid = new Vector3(0.1, 0.17, 0.1);
+        camera.ellipsoid = new Vector3(1.0, 1.7, 1.0);
 
         // Reducing the minimum visible FOV to show the Weapon correctly
         camera.minZ = 0;
@@ -276,7 +282,7 @@ export default class FirstLevel extends Level {
 
         camera.inertia = 0.1;
         camera.angularSensibility = 800;
-        camera.speed = 5;
+        camera.speed = 25;
 
         camera.onCollide = (collidedMesh) => {
             // If the camera collides with the ammo box
