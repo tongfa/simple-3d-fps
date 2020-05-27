@@ -36,17 +36,16 @@ export class TrainTrack {
 
       const railPath = Curve3.CreateCatmullRomSpline(this.points, 5);
       const tiePath = new Path3D(Curve3.CreateCatmullRomSpline(this.points, 20).getPoints());
-      const tieStep = 3;
+      const tieStep = 0.3;
 
-      for (let i = 0.; i <= 1.; i+= tieStep / tiePath.length() ) {
-          const t = MeshBuilder.CreateBox(name, { 'width': 8, 'height': 1, 'depth': 0.25 }, scene);
-          t.position = tiePath.getPointAt(i).add(new Vector3(0, -3, 0));
-          const vRail = tiePath.getNormalAt(i);
-          const dot = Vector3.Dot(vRail, new Vector3(0, 0, 1))
-          const angle = Math.acos(dot)
-          console.log(vRail, angle)
-          t.rotate(new Vector3(0, 1, 0), angle + Math.PI / 2);
-      }
+      // for (let i = 0.; i <= 1.; i+= tieStep / tiePath.length() ) {
+      //     const t = MeshBuilder.CreateBox(name, { 'width': 0.2, 'height': 1, 'depth': 0.01 }, scene);
+      //     t.position = tiePath.getPointAt(i).add(new Vector3(0, -0.3, 0));
+      //     const vRail = tiePath.getNormalAt(i);
+      //     const dot = Vector3.Dot(vRail, new Vector3(0, 0, 1))
+      //     const angle = Math.acos(dot)
+      //     t.rotate(new Vector3(0, 1, 0), angle + Math.PI / 2);
+      // }
 
       const railShapeCorner = new Array<Vector3>().concat([
         new Vector3(2, 5, 0),
@@ -55,7 +54,7 @@ export class TrainTrack {
         new Vector3(2, 2, 0),
         new Vector3(1, 2, 0),
         new Vector3(1, 0, 0),
-      ]).map(v => v.scale(0.1));
+      ]).map(v => v.scale(0.001));
       const oneRailShape= new Array<Vector3>()
         .concat(railShapeCorner)
         .concat(railShapeCorner.map(v => v.multiply(new Vector3(1, -1, 0))).reverse())
@@ -65,12 +64,12 @@ export class TrainTrack {
 
 
       const railShapeEast = new Array<Vector3>()
-        .concat(oneRailShape.map(v => v.add(new Vector3(-3, 0, 0))))
-        .map(v => v.add(new Vector3(0, -2, 0)))
+        .concat(oneRailShape.map(v => v.add(new Vector3(-0.1435 / 2, 0.0, 0))))
 
       const railShapeWest = new Array<Vector3>()
-        .concat(oneRailShape.map(v => v.add(new Vector3(3, 0, 0))))
-        .map(v => v.add(new Vector3(0, -2, 0)))
+        .concat(oneRailShape.map(v => v.add(new Vector3(0.1435 / 2, 0.0, 0))))
+
+      //const extrudedRailCenter = MeshBuilder.ExtrudeShape("extrudedShape", { shape: oneRailShape, path: railPath.getPoints(), sideOrientation: Mesh.BACKSIDE }, scene);
 
       const extrudedRailEast = MeshBuilder.ExtrudeShape("extrudedShape", { shape: railShapeEast, path: railPath.getPoints(), sideOrientation: Mesh.BACKSIDE }, scene);
       const extrudedRailWest = MeshBuilder.ExtrudeShape("extrudedShape", { shape: railShapeWest, path: railPath.getPoints(), sideOrientation: Mesh.BACKSIDE }, scene);

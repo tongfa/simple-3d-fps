@@ -14,6 +14,9 @@ function round(value, precision) {
     return Math.round(value * multiplier) / multiplier;
 }
 
+const REGULAR_SPEED = 1;
+const POWER_SPEED = 8;
+
 export default class FirstLevel extends Level {
 
     setProperties() {
@@ -61,7 +64,7 @@ export default class FirstLevel extends Level {
         hemiLight.intensity = 0.5;
 
         // Skybox
-        var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size: 6375}, this.scene);
+        var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size: 3520}, this.scene);
         var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
         skyboxMaterial.backFaceCulling = false;
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/skybox/skybox", this.scene);
@@ -69,7 +72,7 @@ export default class FirstLevel extends Level {
         skyboxMaterial.disableLighting = true;
         skybox.material = skyboxMaterial;
 
-        this.scene.gravity = new BABYLON.Vector3(0, -9.81, 0);
+        this.scene.gravity = new BABYLON.Vector3(0, -1, 0);
         Promise.all([
           this.createCamera(),
           this.createGround()
@@ -92,6 +95,14 @@ export default class FirstLevel extends Level {
 
           this.player.startTimeCounter();
           // this.addSomething('hose')
+
+          const nearMorrisey = new Vector3(-316, 100, -1571);
+          const nearHosmer = new Vector3(960, 100, 1088);
+          const actualDistance = 16328; // meters
+          const fromHosmerToMorrisey = nearMorrisey.subtract(nearHosmer).length()
+          console.log('game scale', fromHosmerToMorrisey) // 2949.314666155512
+          console.log('actual scale', actualDistance)
+
         })
     }
 
@@ -110,9 +121,6 @@ export default class FirstLevel extends Level {
 
     createGround() {
       return new Promise((resolve) => {
-        //let ground = BABYLON.Mesh.CreateGround('ground',  5000,  5000, 2, this.scene);
-
-
         let groundMaterial = new CustomMaterial('groundMaterial', this.scene);
         groundMaterial.diffuseTexture = new BABYLON.Texture('/assets2/fernie-ground-map-2.png', this.scene);
         // groundMaterial.diffuseTexture.uScale = 1000;
@@ -151,7 +159,7 @@ export default class FirstLevel extends Level {
         `);
 
 
-        let ground = Mesh.CreateGroundFromHeightMap("ground", "/assets2/fernie-height-map-2.png", 6400, 6400, 400, 0, 500, this.scene, false, resolve);
+        let ground = Mesh.CreateGroundFromHeightMap("ground", "/assets2/fernie-height-map-2.png", 3543, 3543, 400, 0, 270, this.scene, false, resolve);
         ground.checkCollisions = true;
         ground.material = groundMaterial;
       })
@@ -159,14 +167,16 @@ export default class FirstLevel extends Level {
 
     addTrainTrack() {
       const trace = []
-        .concat([[681.5, 72.0, -3190.9], [705.4, 72.0, -3175.1], [718.5, 72.0, -3150.0], [750.0, 72.0, -3108.9], [785.1, 72.0, -3059.8], [811.8, 72.0, -3008.7], [844.9, 70.1, -2942.7], [870.5, 70.1, -2895.9]])
-        .concat([[896.2, 70.1, -2848.8], [927.5, 68.1, -2793.3], [964.6, 68.1, -2739.4]])
-        .concat([[1031.9, 64.2, -2570.9], [1016.7, 64.2, -2515.9], [989.7, 64.5, -2479.3], [963.4, 66.2, -2445.7], [942.3, 66.2, -2399.3], [917.8, 66.2, -2346.0], [890.6, 65.5, -2315.0], [876.9, 66.2, -2270.5], [853.8, 66.2, -2231.4], [831.4, 66.2, -2199.9], [814.9, 68.1, -2159.2], [791.5, 68.1, -2117.5], [783.5, 68.8, -2074.6], [777.5, 70.9, -2028.0], [773.2, 72.0, -1986.9], [755.3, 74.0, -1950.1], [723.3, 74.0, -1907.6], [692.1, 74.0, -1871.7], [667.6, 74.0, -1836.7], [652.8, 74.0, -1800.5], [641.1, 74.0, -1757.2], [624.9, 74.0, -1712.5], [599.1, 74.0, -1676.6], [562.7, 74.0, -1648.5], [528.5, 74.0, -1617.9], [496.0, 74.0, -1587.7], [463.5, 74.0, -1556.4], [437.4, 74.0, -1527.2], [426.8, 74.0, -1499.6], [421.1, 74.0, -1463.4], [409.9, 74.0, -1428.1], [388.7, 74.0, -1395.4], [360.3, 71.1, -1367.3], [324.9, 68.1, -1337.1], [294.1, 68.1, -1310.9], [263.2, 68.1, -1284.3], [229.3, 68.1, -1254.5]])
-        .concat([[204.7, 68.1, -1229.9], [151.0, 73.0, -1140.4], [132.5, 71.0, -1026.4], [105.2, 68.1, -974.6], [74.4, 68.1, -931.6], [52.9, 73.1, -897.4], [38.7, 74.0, -842.5], [16.4, 74.0, -780.4], [-9.0, 74.0, -714.2], [-38.1, 73.3, -660.3], [-70.9, 74.0, -608.4], [-107.5, 74.0, -543.0], [-134.8, 74.8, -491.3], [-170.9, 77.9, -445.1], [-186.8, 79.9, -398.6], [-194.5, 81.7, -353.3]])
-        .concat([[-183.8, 83.0, -302.5],[-162.9, 83.8, -262.3], [-178.9, 81.8, -219.7], [-204.9, 81.8, -194.1]])
-        .concat([[-226.6, 79.6, -68.3], [-175.1, 77.9, -21.8], [-172.2, 77.9, 32.6], [-134.7, 77.9, 74.1], [-94.5, 77.9, 113.7], [-58.0, 77.9, 150.5], [-6.0, 77.9, 200.8], [36.5, 77.9, 236.3], [80.5, 77.9, 273.5], [121.0, 77.9, 307.7], [163.3, 77.9, 343.5], [210.5, 77.9, 383.2], [253.6, 77.9, 418.4], [304.2, 77.9, 456.7], [350.6, 77.9, 488.7], [401.1, 77.9, 520.7], [438.9, 77.9, 544.0], [467.2, 77.9, 569.7], [483.1, 77.9, 592.4], [501.8, 77.9, 613.5], [526.0, 77.9, 634.2], [556.4, 77.9, 654.6], [576.3, 77.9, 673.5], [607.8, 77.9, 706.4], [637.2, 77.9, 737.9], [661.0, 79.3, 762.8], [685.6, 77.9, 790.2], [708.8, 77.9, 820.0], [733.8, 77.9, 849.4], [762.1, 77.9, 874.1], [798.5, 77.9, 896.2], [834.0, 77.9, 913.8], [896.7, 77.9, 945.6], [934.6, 77.9, 972.3], [963.9, 77.9, 1007.8], [985.4, 77.9, 1044.9], [1008.7, 77.9, 1082.2], [1047.4, 77.9, 1102.9], [1095.7, 77.9, 1114.1], [1137.0, 81.8, 1119.1]])
-        .concat([[1187.5, 81.8, 1122.2], [1230.5, 81.8, 1126.2], [1268.6, 81.8, 1138.2], [1296.1, 81.8, 1151.3], [1316.3, 81.8, 1168.9], [1336.5, 81.8, 1192.6], [1353.4, 81.8, 1216.0], [1379.3, 81.8, 1252.2], [1399.8, 81.8, 1289.4], [1424.5, 81.8, 1326.8], [1449.4, 81.8, 1360.2], [1464.3, 81.8, 1393.9], [1489.3, 81.8, 1420.9], [1523.4, 81.8, 1445.8], [1578.7, 81.8, 1484.5], [1607.7, 80.7, 1518.9], [1655.9, 81.8, 1568.9], [1675.5, 81.8, 1615.0], [1704.4, 80.3, 1670.4], [1731.6, 77.9, 1710.2], [1765.0, 77.9, 1752.3], [1796.1, 77.9, 1790.4], [1822.7, 77.9, 1828.8], [1849.3, 77.9, 1869.5], [1882.9, 77.9, 1923.0], [1916.6, 77.9, 1973.7], [1952.7, 77.9, 2020.0]])
-        .concat([[2005.7, 77.9, 2080.1], [2527.8, 77.9, 2585.2], [2611.6, 81.1, 2663.3], [2628.3, 82.8, 2681.9], [2638.6, 83.5, 2703.6], [2663.9, 80.9, 2749.2], [2667.7, 82.8, 2780.5], [2691.8, 83.8, 2806.8], [2731.3, 82.7, 2861.2], [2750.7, 83.5, 2902.3], [2767.8, 83.3, 2931.1], [2787.4, 83.8, 2962.1], [2821.7, 82.4, 3009.6], [2824.7, 84.0, 3024.6], [2833.4, 83.8, 3057.3], [2841.4, 83.0, 3076.1], [2850.0, 82.5, 3098.6], [2861.3, 83.9, 3125.2], [2876.0, 83.3, 3151.3], [2891.4, 82.7, 3183.1]])
+        .concat([[-92.7,40.6,5.1],[-91.8,40.6,8.1],[-90.6,40.6,11.4],[-89.5,40.6,14.7],[-88.5,40.6,17.3],[-88.3,40.7,18.5],[-88.1,40.7,19.6],[-87.8,40.7,20.7],[-87.4,40.8,21.8],[-87.1,40.8,22.8],[-86.6,40.9,24],[-86.2,40.9,24.6],[-85.6,40.7,25.8],[-85.1,40.6,26.8],[-84.3,40.6,27.9],[-83.7,40.6,28.9],[-83,40.6,29.8],[-80.5,40.6,32.9],[-78.3,40.6,35.7],[-75.3,40.6,38.7]])
+      //   .concat([[681.5, 72.0, -3190.9], [705.4, 72.0, -3175.1], [718.5, 72.0, -3150.0], [750.0, 72.0, -3108.9], [785.1, 72.0, -3059.8], [811.8, 72.0, -3008.7], [844.9, 70.1, -2942.7], [870.5, 70.1, -2895.9]])
+      //   .concat([[896.2, 70.1, -2848.8], [927.5, 68.1, -2793.3], [964.6, 68.1, -2739.4]])
+      //   .concat([[1031.9, 64.2, -2570.9], [1016.7, 64.2, -2515.9], [989.7, 64.5, -2479.3], [963.4, 66.2, -2445.7], [942.3, 66.2, -2399.3], [917.8, 66.2, -2346.0], [890.6, 65.5, -2315.0], [876.9, 66.2, -2270.5], [853.8, 66.2, -2231.4], [831.4, 66.2, -2199.9], [814.9, 68.1, -2159.2], [791.5, 68.1, -2117.5], [783.5, 68.8, -2074.6], [777.5, 70.9, -2028.0], [773.2, 72.0, -1986.9], [755.3, 74.0, -1950.1], [723.3, 74.0, -1907.6], [692.1, 74.0, -1871.7], [667.6, 74.0, -1836.7], [652.8, 74.0, -1800.5], [641.1, 74.0, -1757.2], [624.9, 74.0, -1712.5], [599.1, 74.0, -1676.6], [562.7, 74.0, -1648.5], [528.5, 74.0, -1617.9], [496.0, 74.0, -1587.7], [463.5, 74.0, -1556.4], [437.4, 74.0, -1527.2], [426.8, 74.0, -1499.6], [421.1, 74.0, -1463.4], [409.9, 74.0, -1428.1], [388.7, 74.0, -1395.4], [360.3, 71.1, -1367.3], [324.9, 68.1, -1337.1], [294.1, 68.1, -1310.9], [263.2, 68.1, -1284.3], [229.3, 68.1, -1254.5]])
+      //   .concat([[204.7, 68.1, -1229.9], [151.0, 73.0, -1140.4], [132.5, 71.0, -1026.4], [105.2, 68.1, -974.6], [74.4, 68.1, -931.6], [52.9, 73.1, -897.4], [38.7, 74.0, -842.5], [16.4, 74.0, -780.4], [-9.0, 74.0, -714.2], [-38.1, 73.3, -660.3], [-70.9, 74.0, -608.4], [-107.5, 74.0, -543.0], [-134.8, 74.8, -491.3], [-170.9, 77.9, -445.1], [-186.8, 79.9, -398.6], [-194.5, 81.7, -353.3]])
+      //   .concat([[-183.8, 83.0, -302.5],[-162.9, 83.8, -262.3], [-178.9, 81.8, -219.7], [-204.9, 81.8, -194.1]])
+      //   .concat([[-226.6, 79.6, -68.3], [-175.1, 77.9, -21.8], [-172.2, 77.9, 32.6], [-134.7, 77.9, 74.1], [-94.5, 77.9, 113.7], [-58.0, 77.9, 150.5], [-6.0, 77.9, 200.8], [36.5, 77.9, 236.3], [80.5, 77.9, 273.5], [121.0, 77.9, 307.7], [163.3, 77.9, 343.5], [210.5, 77.9, 383.2], [253.6, 77.9, 418.4], [304.2, 77.9, 456.7], [350.6, 77.9, 488.7], [401.1, 77.9, 520.7], [438.9, 77.9, 544.0], [467.2, 77.9, 569.7], [483.1, 77.9, 592.4], [501.8, 77.9, 613.5], [526.0, 77.9, 634.2], [556.4, 77.9, 654.6], [576.3, 77.9, 673.5], [607.8, 77.9, 706.4], [637.2, 77.9, 737.9], [661.0, 79.3, 762.8], [685.6, 77.9, 790.2], [708.8, 77.9, 820.0], [733.8, 77.9, 849.4], [762.1, 77.9, 874.1], [798.5, 77.9, 896.2], [834.0, 77.9, 913.8], [896.7, 77.9, 945.6], [934.6, 77.9, 972.3], [963.9, 77.9, 1007.8], [985.4, 77.9, 1044.9], [1008.7, 77.9, 1082.2], [1047.4, 77.9, 1102.9], [1095.7, 77.9, 1114.1], [1137.0, 81.8, 1119.1]])
+      //   .concat([[1187.5, 81.8, 1122.2], [1230.5, 81.8, 1126.2], [1268.6, 81.8, 1138.2], [1296.1, 81.8, 1151.3], [1316.3, 81.8, 1168.9], [1336.5, 81.8, 1192.6], [1353.4, 81.8, 1216.0], [1379.3, 81.8, 1252.2], [1399.8, 81.8, 1289.4], [1424.5, 81.8, 1326.8], [1449.4, 81.8, 1360.2], [1464.3, 81.8, 1393.9], [1489.3, 81.8, 1420.9], [1523.4, 81.8, 1445.8], [1578.7, 81.8, 1484.5], [1607.7, 80.7, 1518.9], [1655.9, 81.8, 1568.9], [1675.5, 81.8, 1615.0], [1704.4, 80.3, 1670.4], [1731.6, 77.9, 1710.2], [1765.0, 77.9, 1752.3], [1796.1, 77.9, 1790.4], [1822.7, 77.9, 1828.8], [1849.3, 77.9, 1869.5], [1882.9, 77.9, 1923.0], [1916.6, 77.9, 1973.7], [1952.7, 77.9, 2020.0]])
+      //   .concat([[2005.7, 77.9, 2080.1], [2527.8, 77.9, 2585.2], [2611.6, 81.1, 2663.3], [2628.3, 82.8, 2681.9], [2638.6, 83.5, 2703.6], [2663.9, 80.9, 2749.2], [2667.7, 82.8, 2780.5], [2691.8, 83.8, 2806.8], [2731.3, 82.7, 2861.2], [2750.7, 83.5, 2902.3], [2767.8, 83.3, 2931.1], [2787.4, 83.8, 2962.1], [2821.7, 82.4, 3009.6], [2824.7, 84.0, 3024.6], [2833.4, 83.8, 3057.3], [2841.4, 83.0, 3076.1], [2850.0, 82.5, 3098.6], [2861.3, 83.9, 3125.2], [2876.0, 83.3, 3151.3], [2891.4, 82.7, 3183.1]])
+      // this.trainTrack = new TrainTrack(trace.map((x => new Vector3(x[0] / 6400 * 3543, (x[1] - 0.75) / 1.91, x[2] / 6400 * 3543))));
       this.trainTrack = new TrainTrack(trace.map((x => new Vector3(x[0], x[1], x[2]))));
       this.trainTrack.addToScene(this.scene);
     }
@@ -211,19 +221,19 @@ export default class FirstLevel extends Level {
             }
         }, false);
         const positions = [];
-        let powerSpeed = false;
+        let powerSpeed =0;
         window.addEventListener('keypress', (e) => {
           if (e.keyCode === 32) {
             positions.push(this.cameraPosition)
-            console.log(positions)
+            console.log(positions.map(p => [round(p.x, 1), round(p.y, 1), round(p.z, 1)]))
           }
           if (e.keyCode === 'u'.charCodeAt(0)) {
             positions.pop();
-            console.log(positions)
+            console.log(positions.map(p => [round(p.x, 1), round(p.y, 1), round(p.z, 1)]))
           }
           if (e.keyCode === 'p'.charCodeAt(0)) {
-            powerSpeed = !powerSpeed;
-            this.camera.speed = powerSpeed ? 100 : 10;
+            powerSpeed = (powerSpeed + 1) % 6;
+            this.camera.speed = powerSpeed * POWER_SPEED + REGULAR_SPEED;
           }
         }, false);
     }
@@ -242,7 +252,7 @@ export default class FirstLevel extends Level {
             'horizontalAlignment': Control.HORIZONTAL_ALIGNMENT_LEFT
         });
 
-        this.ammoTextControl = hud.addText('Position: ' + this.cameraPosition, {
+        this.ammoTextControl = hud.addText(`Position: x:${round(this.cameraPosition.x, 1)} y:${round(this.cameraPosition.y, 1)} z:${round(this.cameraPosition.z, 1)}`, {
             'top': '10px',
             'left': '10px',
             'horizontalAlignment': Control.HORIZONTAL_ALIGNMENT_CENTER
@@ -298,12 +308,12 @@ export default class FirstLevel extends Level {
 
     createCamera() {
       return new Promise((resolve) => {
-        var camera = new UniversalCamera("UniversalCamera", new Vector3(-187, 160.3, -9), this.scene);
-        camera.setTarget(new Vector3(-80,75,30));
+        var camera = new UniversalCamera("UniversalCamera", new Vector3(-95, 41, -8), this.scene);
+        camera.setTarget(new Vector3(-141,70,106));
 
         camera.attachControl(GAME.canvas, true);
 
-        camera.ellipsoid = new Vector3(1.0, 1.7, 1.0);
+        camera.ellipsoid = new Vector3(0.1, 0.2, 0.1);
 
         // Reducing the minimum visible FOV to show the Weapon correctly
         camera.minZ = 0;
@@ -316,7 +326,7 @@ export default class FirstLevel extends Level {
 
         camera.inertia = 0.1;
         camera.angularSensibility = 800;
-        camera.speed = 10;
+        camera.speed = REGULAR_SPEED;
 
         camera.onCollide = (collidedMesh) => {
             // If the camera collides with the ammo box
@@ -384,7 +394,7 @@ export default class FirstLevel extends Level {
         this.lifeTextControl.text = 'Life: ' + this.playerLife;
       }
       if (this.ammoTextControl) {
-        this.ammoTextControl.text = 'Position: ' + this.cameraPosition;
+        this.ammoTextControl.text = `Position: x:${round(this.cameraPosition.x, 1)} y:${round(this.cameraPosition.y, 1)} z:${round(this.cameraPosition.z, 1)}`;
       }
     }
 
@@ -444,7 +454,7 @@ export default class FirstLevel extends Level {
             if(this.camera.position.y < -20) {
                 this.gameOver();
             }
-            this.cameraPosition = `x:${round(this.camera.position.x, 1)} y:${round(this.camera.position.y, 1)} z:${round(this.camera.position.z, 1)}`;
+            this.cameraPosition = this.camera.position.clone();
             this.updateStats();
         }
     }
